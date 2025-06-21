@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title> Nishad Time Viewer Simulation</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #ff0000;
+            text-align: center;
+        }
+        .input-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+        input, select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        button {
+            background-color: #ff0000;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            width: 100%;
+            margin-top: 10px;
+        }
+        button:hover {
+            background-color: #cc0000;
+        }
+        .video-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        .video-item {
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .video-info {
+            padding: 10px;
+            background: #f9f9f9;
+            font-size: 14px;
+        }
+        iframe {
+            width: 100%;
+            height: 200px;
+            border: none;
+        }
+        .status {
+            margin-top: 20px;
+            padding: 15px;
+            background: #e8f5e9;
+            border-radius: 4px;
+            color: #2e7d32;
+        }
+        .warning {
+            background: #fff3e0;
+            color: #e65100;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="warning">
+            <strong>Disclaimer:</strong> This is a simulation for educational purposes only. Artificially inflating views violates Nishad 's Terms of Service.
+        </div>
+        
+        <h1>YouTube Viewer Simulation</h1>
+        
+        <div class="input-group">
+            <label for="youtubeUrl">YouTube Video URL</label>
+            <input type="text" id="youtubeUrl" placeholder="https://www.youtube.com/watch?v=...">
+        </div>
+        
+        <div class="input-group">
+            <label for="viewCount">Number of Views to Simulate</label>
+            <select id="viewCount">
+                <option value="5">5 Views</option>
+                <option value="10">10 Views</option>
+                <option value="20">20 Views</option>
+                <option value="50">50 Views</option>
+            </select>
+        </div>
+        
+        <div class="input-group">
+            <label for="watchTime">Watch Time</label>
+            <select id="watchTime">
+                <option value="30">30 seconds</option>
+                <option value="60" selected>1 minute</option>
+                <option value="120">2 minutes</option>
+                <option value="300">5 minutes</option>
+                <option value="600">10 minutes</option>
+            </select>
+        </div>
+        
+        <button id="simulateBtn">Simulate Views</button>
+        
+        <div id="status" class="status">
+            Ready to simulate views...
+        </div>
+        
+        <div id="video-container" class="video-container">
+            <!-- Videos will appear here -->
+        </div>
+    </div>
+
+    <script>
+        document.getElementById("simulateBtn").addEventListener("click", simulateViews);
+        
+        // Mock proxy list (in a real implementation, this would come from a proxy service)
+        const mockProxies = [
+            { ip: '192.168.1.101', location: 'New York, US' },
+            { ip: '192.168.1.102', location: 'London, UK' },
+            { ip: '10.0.0.50', location: 'Berlin, DE' },
+            { ip: '172.16.0.10', location: 'Paris, FR' },
+            { ip: '203.0.113.45', location: 'Tokyo, JP' },
+            { ip: '198.51.100.22', location: 'Toronto, CA' },
+            { ip: '203.0.113.78', location: 'Sydney, AU' },
+            { ip: '192.0.2.15', location: 'Singapore, SG' },
+            { ip: '192.168.1.103', location: 'Mumbai, IN' },
+            { ip: '192.168.1.104', location: 'São Paulo, BR' }
+        ];
+        
+        async function simulateViews() {
+            const url = document.getElementById("youtubeUrl").value.trim();
+            const viewCount = parseInt(document.getElementById("viewCount").value);
+            const watchTime = parseInt(document.getElementById("watchTime").value);
+            const videoId = extractVideoId(url);
+            const videoContainer = document.getElementById("video-container");
+            const statusElement = document.getElementById("status");
+            
+            // Clear previous videos
+            videoContainer.innerHTML = "";
+            statusElement.textContent = "Preparing simulation...";
+            statusElement.style.backgroundColor = "#fff8e1";
+            statusElement.style.color = "#ff8f00";
+            
+            if (!videoId) {
+                statusElement.textContent = "Invalid YouTube URL! Please check your link.";
+                statusElement.style.backgroundColor = "#ffebee";
+                statusElement.style.color = "#c62828";
+                return;
+            }
+            
+            // Create simulated viewers
+            for (let i = 0; i < viewCount; i++) {
+                const proxy = mockProxies[i % mockProxies.length];
+                const delay = i * 5000; // Stagger the start times
+                
+                setTimeout(() => {
+                    createViewer(videoId, proxy, watchTime);
+                    
+                    // Update status
+                    statusElement.textContent = `Simulating view ${i+1} of ${viewCount} from ${proxy.location} (IP: ${proxy.ip})`;
+                    
+                    // Complete message
+                    if (i === viewCount - 1) {
+                        setTimeout(() => {
+                            statusElement.textContent = `Completed simulating ${viewCount} views with unique IPs!`;
+                            statusElement.style.backgroundColor = "#e8f5e9";
+                            statusElement.style.color = "#2e7d32";
+                        }, 2000);
+                    }
+                }, delay);
+                
+                // Add small delay between each viewer
+                await new Promise(resolve => setTimeout(resolve, 500));
+            }
+        }
+        
+        function createViewer(videoId, proxy, watchTime) {
+            const videoContainer = document.getElementById("video-container");
+            
+            const videoItem = document.createElement("div");
+            videoItem.className = "video-item";
+            
+            // Create iframe
+            const iframe = document.createElement("iframe");
+            iframe.src = `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1`;
+            iframe.setAttribute("allowfullscreen", "");
+            
+            // Video info
+            const videoInfo = document.createElement("div");
+            videoInfo.className = "video-info";
+            videoInfo.innerHTML = `
+                <strong>IP:</strong> ${proxy.ip}<br>
+                <strong>Location:</strong> ${proxy.location}<br>
+                <strong>Watch Time:</strong> ${formatWatchTime(watchTime)}
+            `;
+            
+            videoItem.appendChild(iframe);
+            videoItem.appendChild(videoInfo);
+            videoContainer.appendChild(videoItem);
+            
+            // Simulate watch time by keeping the iframe for the duration
+            setTimeout(() => {
+                iframe.remove();
+            }, watchTime * 1000);
+        }
+        
+        function formatWatchTime(seconds) {
+            if (seconds >= 60) {
+                const minutes = Math.floor(seconds / 60);
+                const remainingSeconds = seconds % 60;
+                return `${minutes} minute${minutes !== 1 ? 's' : ''}${remainingSeconds > 0 ? ` ${remainingSeconds} seconds` : ''}`;
+            }
+            return `${seconds} seconds`;
+        }
+        
+        function extractVideoId(url) {
+            const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+            const match = url.match(regExp);
+            return (match && match[2].length === 11) ? match[2] : null;
+        }
+    </script>
+</body>
+</html>
